@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>POC - 100</title>
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+    crossorigin="anonymous"
+  />
+  <link rel="stylesheet" href="style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="app-header">
+    <div class="container header-content">
+      <img src="assets/css/logo.png" alt="Logo Wwin Safety" class="logo" />
+      <divc class="header-title">
+        <h1>P.O.C 100</h1>
+      </div>
+    </div>
+  </header>
+
+  <main class="container app-main">
+    <section class="view-toggle" aria-label="Ações principais">
+      <button type="button" class="tab-button is-active" data-view="cadastrar">Cadastrar</button>
+      <button type="button" class="tab-button" data-view="consultar">Consultar</button>
+    </section>
+
+    <section class="view-panel is-active" data-view-panel="cadastrar">
+      <form id="poc-form">
+        <div class="tabs" role="tablist">
+          <button type="button" class="tab is-active" data-tab="basicos" role="tab" aria-selected="true">Dados Básicos</button>
+          <button type="button" class="tab is-disabled" data-tab="inseguras" role="tab" aria-selected="false" aria-disabled="true">Práticas / Condição Inseguras</button>
+          <button type="button" class="tab is-disabled" data-tab="seguras" role="tab" aria-selected="false" aria-disabled="true">Reconhecimento de Prática Segura</button>
+        </div>
+
+        <div class="tab-panel is-active" data-tab-panel="basicos" role="tabpanel">
+          <h2>Dados Básicos</h2>
+          <div class="form-grid">
+            <label><strong>Unidade*</strong>
+              <select id="unidadeSelect" required>
+                <option value="">Selecione</option>
+                <option value="Vespasiano">Vespasiano</option>
+                <option value="Porto Açu">Porto Açu</option>
+                <option value="Contagem">Contagem</option>
+              </select>
+            </label>
+            <label><strong>Setor*</strong>
+              <select id="setorSelect" required disabled>
+                  <option value="">Selecione</option>
+              </select>
+            </label>
+            <label><strong>Subsetor*</strong>
+              <select id="subsetorSelect" required disabled>
+                <option value="">Selecione</option>
+              </select>
+            </label>
+            <label><strong>Observador*</strong> 
+              <select id="observador" required>
+                <option value="">Selecione</option>
+                <option value="davi">Davi</option>
+                <option value="brayan">Brayan</option>
+                <option value="samuel">Samuel</option>
+                <option value="lucas">Lucas</option>
+                <option value="walef">Walef</option>
+                <option value="welington">Welington</option>
+                <option value="eder">Eder</option>
+                <option value="guilherme">Guilherme</option>
+                <option value="humberto">Humberto</option>
+                <option value="wagner">Wagner</option>
+              </select>
+            </label>
+            <label>Acompanhante
+              <select id="acompanhante">
+                <option value="">Selecione</option>
+                <option value="davi">Davi</option>
+                <option value="brayan">Brayan</option>
+                <option value="samuel">Samuel</option>
+                <option value="lucas">Lucas</option>
+                <option value="walef">Walef</option>
+                <option value="welington">Welington</option>
+                <option value="eder">Eder</option>
+                <option value="guilherme">Guilherme</option>
+                <option value="humberto">Humberto</option>
+                <option value="wagner">Wagner</option>
+              </select>
+            </label>
+            <label><strong>Data*</strong>
+              <input type="date" id="data" required />
+            </label>
+            <label><strong>Hora*</strong>
+              <input type="time" id="hora" required />
+            </label>
+            <label><strong>Pessoas Observadas*</strong>
+              <input type="number" id="pessoas-observadas" min="1" required />
+            </label>
+            <label><strong>Pessoas na Área*</strong>
+              <input type="number" id="pessoas-area" min="1" required />
+            </label>
+          </div>
+
+          <fieldset class="radio-group">
+            <legend><strong>Tipo de registro*</strong></legend>
+            <label>
+              <input type="radio" name="tipo-registro" value="insegura" required />
+              Prática / Condição Insegura
+            </label>
+            <label>
+              <input type="radio" name="tipo-registro" value="segura" required />
+              Reconhecimento de Prática Segura
+            </label>
+          </fieldset>
+        </div>
+
+        <div class="tab-panel" data-tab-panel="inseguras" role="tabpanel">
+          <h2>Práticas / Condição Inseguras</h2>
+
+          <div class="ai-toolbar" id="poc-ai-toolbar-unsafe">
+            <button type="button" class="ai-btn" id="poc-ai-fill-btn">Preencher cartão de POC</button>
+            <button type="button" class="ai-gear" id="poc-ai-settings-btn" aria-label="Opções IA" title="Opções IA">⚙️</button>
+            <div class="ai-hint" id="poc-ai-hint-unsafe"></div>
+          </div>
+
+          <fieldset class="radio-group">
+            <legend><strong>Tipo de Registro*</strong></legend>
+            <label>
+              <input type="radio" name="tipoInsegura" value="PRATICA" required />
+              Prática Insegura
+            </label>
+            <label>
+              <input type="radio" name="tipoInsegura" value="CONDICAO" required />
+              Condição Insegura
+            </label>
+          </fieldset>
+          <div class="unsafe-layout">
+            <div class="unsafe-practices">
+              <label><strong>Categoria*</strong>
+                <select id="categoriaInseguraSelect" required disabled>
+                  <option value="">Selecione</option>
+                </select>
+              </label>
+              <label><strong>Subcategoria*</strong>
+                <select id="subcategoriaInseguraSelect" required disabled>
+                  <option value="">Selecione</option>
+                </select>
+              </label>
+            </div>
+            <div class="unsafe-fields">
+              <label><strong>Quem foi observado?*</strong>
+                <select id="observado" required>
+                  <option value="">Selecione</option>
+                  <option value="colaborador">Colaborador</option>
+                  <option value="terceiro">Terceiro</option>
+                  <option value="visitante">Visitante</option>
+                </select>
+              </label>
+              <label><strong>Quantidade*</strong>
+                <input type="number" id="quantidade" min="1" required />
+              </label>
+              <label><strong>Prática Insegura*</strong>
+                <textarea id="pratica-insegura" rows="3" required></textarea>
+              </label>
+              <label><strong>Ação Recomendada*</strong>
+                <textarea id="acao-recomendada" rows="3" required></textarea>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" data-tab-panel="seguras" role="tabpanel">
+          <h2>Reconhecimento de Prática Segura</h2>
+
+
+          <label><strong>Reconhecimento do Trabalho Seguro*</strong>
+            <textarea id="reconhecimento" rows="4" required></textarea>
+          </label>
+          <label>Observação
+            <textarea id="observacao" rows="3"></textarea>
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" id="add-btn" class="primary" disabled>Adicionar</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="view-panel" data-view-panel="consultar">
+      <div class="consultar">
+        <h2>Consultar POC</h2>
+        <div class="form-grid">
+          <label><strong>Unidade*</strong>
+              <select id="unidade-consulta" required>
+                <option value="">Selecione</option>
+                <option value="vespasiano">Vespasiano</option>
+                <option value="portoacu">Porto Açu</option>
+                <option value="contagem">Contagem</option>
+              </select>
+            </label>
+            <label><strong>Setor*</strong>
+              <select id="setor-consulta" required>
+                  <option value="">Selecione</option>
+                  <option value="administrativo">Administrativo</option>
+                  <option value="caldeiraria">Caldeiraria</option>
+                  <option value="montagem">Montagem</option>
+                  <option value="usinagem">Usinagem</option>
+                  <option value="manutencao">Manutenção</option>
+              </select>
+            </label>
+            <label><strong>Subsetor*</strong>
+              <select id="subsetor-consulta" required>
+                <option value="">Selecione</option>
+                <option value="fiscal">Fiscal</option>
+                <option value="financeiro">Financeiro</option>
+                <option value="gg">GG</option>
+                <option value="inovacao">Inovação</option>
+                <option value="ti">TI</option>
+                <option value="facilities">Facilities</option>
+                <option value="almoxarifado">Almoxarifado</option>
+                <option value="ems">EMS</option>
+                <option value="pcp">PCP</option>
+                <option value="ambulatorio">Ambulatório</option>
+              </select>
+            </label>
+            <label><strong>Observador*</strong>
+              <select id="observador" required>
+                <option value="">Selecione</option>
+                <option value="davi">Davi</option>
+                <option value="brayan">Brayan</option>
+                <option value="samuel">Samuel</option>
+                <option value="lucas">Lucas</option>
+                <option value="walef">Walef</option>
+                <option value="welington">Welington</option>
+                <option value="eder">Eder</option>
+                <option value="guilherme">Guilherme</option>
+                <option value="humberto">Humberto</option>
+                <option value="wagner">Wagner</option>
+              </select>
+            </label>
+            <label>Acompanhante
+              <select id="acompanhante">
+                <option value="">Selecione</option>
+                <option value="davi">Davi</option>
+                <option value="brayan">Brayan</option>
+                <option value="samuel">Samuel</option>
+                <option value="lucas">Lucas</option>
+                <option value="walef">Walef</option>
+                <option value="welington">Welington</option>
+                <option value="eder">Eder</option>
+                <option value="guilherme">Guilherme</option>
+                <option value="humberto">Humberto</option>
+                <option value="wagner">Wagner</option>
+              </select>
+            </label>
+          <label>Data início
+            <input type="date" id="filtro-data-inicio" />
+          </label>
+          <label>Data fim
+            <input type="date" id="filtro-data-fim" />
+          </label>
+          <label>Hora início
+            <input type="time" id="filtro-hora-inicio" />
+          </label>
+          <label>Hora fim
+            <input type="time" id="filtro-hora-fim" />
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="button" id="consultar-btn" class="primary">Consultar</button>
+        </div>
+        <div id="consulta-resultado" class="consulta-resultado" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+  <script
+    src="https://code.jquery.com/jquery-3.7.1.min.js"
+    integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo="
+    crossorigin="anonymous"
+  ></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  
+  <!-- =========================
+       PocAI Modals (Gemini)
+       ========================= -->
+  <div class="modal fade" id="pocAiSettingsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Opções IA (Gemini)</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label"><strong>API Key do Gemini</strong></label>
+            <input type="password" class="form-control" id="pocAiApiKey" placeholder="Cole sua chave aqui" autocomplete="off" />
+            <div class="form-text">A chave fica salva apenas no seu navegador (localStorage).</div>
+          </div>
+          <div class="form-check form-switch mb-2">
+            <input class="form-check-input" type="checkbox" role="switch" id="pocAiEnabled">
+            <label class="form-check-label" for="pocAiEnabled"><strong>Modo IA</strong> ligado</label>
+          </div>
+          <div class="ai-privacy">
+            As imagens serão enviadas ao Gemini para leitura e preenchimento do formulário. Você pode desligar o modo IA quando quiser.
+          </div>
+          <div class="alert alert-info mt-3 d-none" id="pocAiSettingsStatus"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+          <button type="button" class="btn btn-primary" id="pocAiSaveSettings">Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="pocAiFillModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Preencher cartão de POC</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+        </div>
+        <div class="modal-body">
+          <div class="ai-mode-row mb-3">
+            <button type="button" class="btn btn-outline-primary btn-sm" id="pocAiModeCamera">Câmera</button>
+            <button type="button" class="btn btn-outline-primary btn-sm" id="pocAiModeGallery">Galeria</button>
+            <span class="ai-mode-status" id="pocAiFillStatus"></span>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label"><strong>Foto da Frente*</strong></label>
+              <input class="form-control" type="file" id="pocAiFront" accept="image/*">
+            </div>
+            <div class="col-12">
+              <label class="form-label"><strong>Foto do Verso*</strong></label>
+              <input class="form-control" type="file" id="pocAiBack" accept="image/*">
+            </div>
+          </div>
+
+          <div class="alert alert-danger mt-3 d-none" id="pocAiError"></div>
+          <div class="alert alert-info mt-3 d-none" id="pocAiProgress"></div>
+          <div class="ai-log mt-3" id="pocAiLog"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="pocAiRun">Ler e Preencher</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script
+    src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+    crossorigin="anonymous"
+  ></script>
+  <script>
+    // INSEGURAS DATA
+    const PRATICA = {
+      'A. Reação das Pessoas': [
+        'A.1 Mudança de Posição',
+        'A.2 Parando o Serviço',
+        'A.3 Ajustando o EPI',
+        'A.4 Adequando o Serviço'
+      ],
+      'B. Posição das Pessoas': [
+        'B.1 Bater Contra / Ser Atingido por',
+        'B.2 Ficar Preso',
+        'B.3 Risco de Queda',
+        'B.4 Risco de Queimadura',
+        'B.5 Risco de Choque Elétrico',
+        'B.6 Inalar Contaminante',
+        'B.7 Absorver Contaminantes',
+        'B.8 Ingerir Contaminantes',
+        'B.9 Postura Inadequada',
+        'B.10 Esforço Inadequado'
+      ],
+      'C. EPIs': [
+        'C.1 Cabeça',
+        'C.2 Sistema Respiratório',
+        'C.3 Olhos e Rosto',
+        'C.4 Ouvidos',
+        'C.5 Mãos e Braços',
+        'C.6 Tronco',
+        'C.7 Pés e Pernas'
+      ],
+      'D. Ferramentas e Equipamentos': [
+        'D.1 Impróprias para o Serviço',
+        'D.2 Usadas Incorretamente',
+        'D.3 Em Condições Inseguras'
+      ],
+      'E. Procedimentos': [
+        'E.1 Inadequados',
+        'E.2 Não Existem Procedimentos Escritos',
+        'E.3 Adequados e Não Seguidos'
+      ],
+      'F. Ordem, Limpeza e Arrumação': [
+        'F.1 Local Sujo',
+        'F.2 Local Desorganizado',
+        'F.3 Local com Vazamento e Poluição Ambiental'
+      ]
+    };
+
+    const CONDICAO = {
+      'CI. Ambiente / Área': [
+        'CI.1 Piso irregular / escorregadio',
+        'CI.2 Iluminação inadequada',
+        'CI.3 Sinalização ausente / falha'
+      ],
+      'CI. Equipamentos / Estruturas': [
+        'CI.4 Proteções ausentes',
+        'CI.5 Falha mecânica aparente',
+        'CI.6 Vazamento / risco físico'
+      ]
+    };
+    // TODO: substituir CONDICAO quando lista oficial chegar.
+
+    const INSEGURAS = { PRATICA, CONDICAO };
+
+    const MAP = {
+      Vespasiano: {
+        Administrativo: [
+          'Comercial',
+          'diretoria',
+          'Engenharia de Aplicações e Vendas',
+          'Facilites',
+          'Financeiro',
+          'Gente e Gestão',
+          'Gerência de Projetos',
+          'Marketing',
+          'Pesquisa e Desenvolvimento',
+          'SGQ',
+          'Suprimentos',
+          'TI'
+        ],
+        Almoxarifado: [
+          'Almoxarifado',
+          'Chaparia',
+          'Magazine'
+        ],
+        'Area Externa': [
+          'Área Externa',
+          'Banker',
+          'Estacionamento',
+          'FAT',
+          'Montagem de Andaimes',
+          'Oficina de Excelência Operacional',
+          'Sala de Treinamento'
+        ],
+        Calderaria: [
+          'CD - Centro de Distribuição',
+          'Célula A',
+          'Célula B',
+          'Célula ME',
+          'Célula Robotizada',
+          'Célula T',
+          'Centro Tecnológico Soldagem',
+          'Forno'
+        ],
+        CQ: [
+          'CQ Documental',
+          'CQ Fábrica'
+        ],
+        'Field Service': [
+          'Administrativo',
+          'Almoxarifado',
+          'DOW',
+          'Obra Coifa',
+          'Saipem Guarujá-SP'
+        ],
+        Logística: [
+          'Expedição',
+          'Operadores de ponte',
+          'Serviços Gerais'
+        ],
+        Manutenção: [
+          'Manutenção',
+          'Terceiros'
+        ],
+        'Montagem de Campo': [
+          'Montagem de Estacas'
+        ],
+        'Montagem Mecanica': [
+          'Montagem Mecanica'
+        ],
+        Pintura: [
+          'Pintura'
+        ],
+        'Produtivo Indireto': [
+          'Engenaria Industria Usinagem',
+          'Engenharia de Calderaria',
+          'Engenharia de Materiais e Solda',
+          'Engenaria de Usinagem',
+          'Engenharia Industrial Mecanica',
+          'Excelência Operaciona',
+          'Gerência da Produção',
+          'Melhoria de Manufatura',
+          'Metrologia',
+          'PCP',
+          'SESMT',
+          'SGA'
+        ],
+        Terceiros: [
+          'Clientes Residente',
+          'Cliente Visitante',
+          'Conservação e Limpeza',
+          'Fretamento (Allure)',
+          'Portaria',
+          'Restaurante',
+          'Vigilancia e Portaria'
+        ],
+        Usinagem: [
+          'Ferramentaria',
+          'Leve',
+          'Pesada'
+        ]
+      },
+      Contagem: 'Vespasiano',
+      'Porto Açu': {
+        Cais: [
+          'Montagem/Soldagem'
+        ],
+        'Galpão Delp Açu': [
+          'Administrativo',
+          'Árae de Produção',
+          'Manutenção',
+          'Montagem/Mov de Carga',
+          'Soldagem'
+        ],
+        'Montagem Externa': [
+          'Jumper Niterói/ Bacalhau'
+        ]
+      }
+    };
+
+    const resolveUnitMap = (unit) => {
+      if (!unit) return null;
+      const unitMap = MAP[unit];
+      if (!unitMap) return null;
+      if (typeof unitMap === 'string') {
+        return MAP[unitMap] || null;
+      }
+      return unitMap;
+    };
+
+    const resetSelect = (select, placeholder = 'Selecione', disabled = true) => {
+      select.empty();
+      select.append(new Option(placeholder, ''));
+      select.prop('disabled', disabled);
+    };
+
+    const fillSelect = (select, items = [], placeholder = 'Selecione') => {
+      resetSelect(select, placeholder, false);
+      items.forEach((item) => {
+        select.append(new Option(item, item));
+      });
+    };
+
+    // SIDEBAR RENDER
+    const renderSidebar = (tipo) => {
+      const $sidebar = $('#practice-list');
+      $sidebar.empty();
+
+      const categorias = INSEGURAS[tipo] || {};
+      Object.entries(categorias).forEach(([categoria, subcategorias]) => {
+        const $categoryItem = $('<li></li>');
+        const $details = $('<details class="category-item" open></details>');
+        const $summary = $(`<summary>${categoria}</summary>`);
+        const $subList = $('<ul class="subcategory-list"></ul>');
+
+        subcategorias.forEach((subcategoria) => {
+          const $subItem = $(`
+            <li>
+              <button
+                type="button"
+                class="subcategory-item"
+                data-categoria="${categoria}"
+                data-subcategoria="${subcategoria}"
+              >${subcategoria}</button>
+            </li>
+          `);
+          $subList.append($subItem);
+        });
+
+        $details.append($summary, $subList);
+        $categoryItem.append($details);
+        $sidebar.append($categoryItem);
+      });
+    };
+
+    // AUTOFILL FROM SIDEBAR
+    const applySidebarSelection = (tipo, categoria, subcategoria) => {
+      const $categoriaSelect = $('#categoriaSelect');
+      const $subcategoriaSelect = $('#subcategoriaSelect');
+
+      $categoriaSelect.val(categoria).trigger('change');
+      $subcategoriaSelect.val(subcategoria).trigger('change');
+    };
+
+    $(document).ready(() => {
+      const unidadeSelect = $('#unidadeSelect');
+      const setorSelect = $('#setorSelect');
+      const subsetorSelect = $('#subsetorSelect');
+      const observadorSelect = $('#poc-form #observador');
+
+      const applySelectionChain = ({ unidade, setor, subsetor }) => {
+        unidadeSelect.val(unidade).trigger('change');
+        setTimeout(() => {
+          setorSelect.val(setor).trigger('change');
+          setTimeout(() => {
+            subsetorSelect.val(subsetor);
+          }, 0);
+        }, 0);
+      };
+
+      const $categoriaSelect = $('#categoriaInseguraSelect');
+      const $subcategoriaSelect = $('#subcategoriaInseguraSelect');
+
+      resetSelect(setorSelect, 'Selecione', true);
+      resetSelect(subsetorSelect, 'Selecione', true);
+
+      unidadeSelect.on('change', () => {
+        const unidade = unidadeSelect.val();
+        resetSelect(setorSelect, 'Selecione', true);
+        resetSelect(subsetorSelect, 'Selecione', true);
+
+        const unitMap = resolveUnitMap(unidade);
+        if (!unitMap) return;
+        fillSelect(setorSelect, Object.keys(unitMap));
+      });
+
+      setorSelect.on('change', () => {
+        const unidade = unidadeSelect.val();
+        const setor = setorSelect.val();
+        resetSelect(subsetorSelect, 'Selecione', true);
+
+        const unitMap = resolveUnitMap(unidade);
+        if (!unitMap || !setor) return;
+        const subsetores = unitMap[setor] || [];
+        fillSelect(subsetorSelect, subsetores);
+        // AUTOSELEÇÃO SUBSETOR ÚNICO
+        if (subsetores.length === 1) {
+          subsetorSelect.val(subsetores[0]);
+        }
+      });
+
+      // PRESELEÇÃO OBSERVADOR BRAYAN
+      observadorSelect.val('brayan');
+      applySelectionChain({
+        unidade: 'Vespasiano',
+        setor: 'Administrativo',
+        subsetor: 'TI'
+      });
+
+      observadorSelect.on('change', () => {
+        if (observadorSelect.val() === 'brayan') {
+          applySelectionChain({
+            unidade: 'Vespasiano',
+            setor: 'Administrativo',
+            subsetor: 'TI'
+          });
+        }
+      });
+
+      const getTipoSelecionado = () => {
+        return $('input[name="tipoInsegura"]:checked').val() || '';
+      };
+
+      // TIPO → CATEGORIA
+      const populateCategorias = (tipo) => {
+        if (!tipo) {
+          resetSelect($categoriaSelect, 'Selecione', true);
+          resetSelect($subcategoriaSelect, 'Selecione', true);
+          return;
+        }
+
+        const categorias = Object.keys(INSEGURAS[tipo] || {});
+        fillSelect($categoriaSelect, categorias, 'Selecione');
+        resetSelect($subcategoriaSelect, 'Selecione', true);
+        $categoriaSelect.prop('disabled', false);
+      };
+
+      // CATEGORIA → SUBCATEGORIA
+      const populateSubcategorias = (tipo, categoria) => {
+        if (!tipo || !categoria) {
+          resetSelect($subcategoriaSelect, 'Selecione', true);
+          return;
+        }
+
+        const subcategorias = (INSEGURAS[tipo] && INSEGURAS[tipo][categoria]) || [];
+        fillSelect($subcategoriaSelect, subcategorias, 'Selecione');
+        $subcategoriaSelect.prop('disabled', false);
+        if (subcategorias.length === 1) {
+          $subcategoriaSelect.val(subcategorias[0]).trigger('change');
+        }
+      };
+
+      $('input[name="tipoInsegura"]').on('change', () => {
+        populateCategorias(getTipoSelecionado());
+      });
+
+      $categoriaSelect.on('change', () => {
+        populateSubcategorias(getTipoSelecionado(), $categoriaSelect.val());
+      });
+
+      resetSelect($categoriaSelect, 'Selecione', true);
+      resetSelect($subcategoriaSelect, 'Selecione', true);
+      const tipoInicial = getTipoSelecionado();
+      if (tipoInicial) {
+        populateCategorias(tipoInicial);
+      }
+    });
+  </script>
+  <script src="app.js"></script>
+</body>
+</html>

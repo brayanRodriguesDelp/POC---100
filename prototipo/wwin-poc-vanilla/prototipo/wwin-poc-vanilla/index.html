@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>POC - 100</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+</head>
+<body>
+  <header class="app-header">
+    <div class="container header-content">
+      <img src="assets/css/logo.png" alt="Logo Wwin Safety" class="logo" />
+      <divc class="header-title">
+        <h1>P.O.C 100</h1>
+      </div>
+    </div>
+  </header>
+
+  <main class="container app-main">
+    <section class="view-toggle" aria-label="Ações principais">
+      <button type="button" class="tab-button is-active" data-view="cadastrar">Cadastrar</button>
+      <button type="button" class="tab-button" data-view="consultar">Consultar</button>
+    </section>
+
+    <section class="view-panel is-active" data-view-panel="cadastrar">
+      <form id="poc-form" novalidate>
+        <div class="tabs" role="tablist">
+          <button type="button" class="tab is-active" data-tab="basicos" role="tab" aria-selected="true">Dados Básicos</button>
+          <button type="button" class="tab is-disabled" data-tab="inseguras" role="tab" aria-selected="false" aria-disabled="true">Práticas / Condição Inseguras</button>
+          <button type="button" class="tab is-disabled" data-tab="seguras" role="tab" aria-selected="false" aria-disabled="true">Reconhecimento de Prática Segura</button>
+        </div>
+
+        <div class="tab-panel is-active" data-tab-panel="basicos" role="tabpanel">
+          <h2>Dados Básicos</h2>
+          <div class="form-grid">
+            <label><strong>Unidade*</strong>
+              <select id="unidade" required>
+                <option value="">Selecione</option>
+                <option value="vespasiano">Vespasiano</option>
+                <option value="portoacu">Porto Açu</option>
+                <option value="contagem">Contagem</option>
+              </select>
+            </label>
+            <label><strong>Setor*</strong>
+              <select id="setor" required>
+                  <option value="">Selecione</option>
+                  <option value="administrativo">Administrativo</option>
+                  <option value="caldeiraria">Caldeiraria</option>
+                  <option value="montagem">Montagem</option>
+                  <option value="usinagem">Usinagem</option>
+                  <option value="manutencao">Manutenção</option>
+              </select>
+            </label>
+            <label><strong>Subsetor*</strong>
+              <select id="subsetor" required>
+                <option value="">Selecione</option>
+                <option value="fiscal">Fiscal</option>
+                <option value="financeiro">Financeiro</option>
+                <option value="gg">GG</option>
+                <option value="inovacao">Inovação</option>
+                <option value="ti">TI</option>
+                <option value="facilities">Facilities</option>
+                <option value="almoxarifado">Almoxarifado</option>
+                <option value="ems">EMS</option>
+                <option value="pcp">PCP</option>
+                <option value="ambulatorio">Ambulatório</option>
+              </select>
+            </label>
+            <label><strong>Observador*</strong>
+              <select id="observador" required>
+                <option value="">Selecione</option>
+                <option value="davi">Davi</option>
+                <option value="brayan">Brayan</option>
+                <option value="samuel">Samuel</option>
+                <option value="lucas">Lucas</option>
+                <option value="walef">Walef</option>
+                <option value="welington">Welington</option>
+                <option value="eder">Eder</option>
+                <option value="guilherme">Guilherme</option>
+                <option value="humberto">Humberto</option>
+                <option value="wagner">Wagner</option>
+              </select>
+            </label>
+            <label>Acompanhante
+              <select id="acompanhante">
+                <option value="">Selecione</option>
+                <option value="davi">Davi</option>
+                <option value="brayan">Brayan</option>
+                <option value="samuel">Samuel</option>
+                <option value="lucas">Lucas</option>
+                <option value="walef">Walef</option>
+                <option value="welington">Welington</option>
+                <option value="eder">Eder</option>
+                <option value="guilherme">Guilherme</option>
+                <option value="humberto">Humberto</option>
+                <option value="wagner">Wagner</option>
+              </select>
+            </label>
+            <label><strong>Data*</strong>
+              <input type="date" id="data" required />
+            </label>
+            <label><strong>Hora*</strong>
+              <input type="time" id="hora" required />
+            </label>
+            <label><strong>Pessoas Observadas*</strong>
+              <input type="number" id="pessoas-observadas" min="1" required />
+            </label>
+            <label><strong>Pessoas na Área*</strong>
+              <input type="number" id="pessoas-area" min="1" required />
+            </label>
+          </div>
+
+          <fieldset class="radio-group">
+            <legend><strong>Tipo de registro*</strong></legend>
+            <label>
+              <input type="radio" name="tipo-registro" value="insegura" required />
+              Prática / Condição Insegura
+            </label>
+            <label>
+              <input type="radio" name="tipo-registro" value="segura" required />
+              Reconhecimento de Prática Segura
+            </label>
+          </fieldset>
+        </div>
+
+        <div class="tab-panel" data-tab-panel="inseguras" role="tabpanel">
+          <h2>Práticas / Condição Inseguras</h2>
+          <div class="unsafe-layout">
+            <div class="unsafe-practices">
+              <p><strong>Prática (A-F)*</strong></p>
+              <ul class="practice-list" id="practice-list">
+                <li data-practice="A">Reação das Pessoas</li>
+                <li data-practice="B">Posição das Pessoas</li>
+                <li data-practice="C">EPIs</li>
+                <li data-practice="D">Ferramentas e Equipamentos</li>
+                <li data-practice="E">Procedimentos</li>
+                <li data-practice="F">Ordem, Limpeza e Organização</li>
+              </ul>
+              <input type="hidden" id="practice-selected" required />
+            </div>
+            <div class="unsafe-fields">
+              <label><strong>Subcategoria*</strong>
+                <select id="subcategoria" required>
+                  <option value="">Selecione</option>
+                  <option value="epi">Uso de EPI</option>
+                  <option value="equipamento">Equipamento</option>
+                  <option value="ambiente">Ambiente</option>
+                </select>
+              </label>
+              <label><strong>Quem foi observado?*</strong>
+                <select id="observado" required>
+                  <option value="">Selecione</option>
+                  <option value="colaborador">Colaborador</option>
+                  <option value="terceiro">Terceiro</option>
+                  <option value="visitante">Visitante</option>
+                </select>
+              </label>
+              <label><strong>Quantidade*</strong>
+                <input type="number" id="quantidade" min="1" required />
+              </label>
+              <label><strong>Prática Insegura*</strong>
+                <textarea id="pratica-insegura" rows="3" required></textarea>
+              </label>
+              <label><strong>Ação Recomendada*</strong>
+                <textarea id="acao-recomendada" rows="3" required></textarea>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-panel" data-tab-panel="seguras" role="tabpanel">
+          <h2>Reconhecimento de Prática Segura</h2>
+          <label><strong>Reconhecimento do Trabalho Seguro*</strong>
+            <textarea id="reconhecimento" rows="4" required></textarea>
+          </label>
+          <label>Observação
+            <textarea id="observacao" rows="3"></textarea>
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button type="button" id="add-btn" class="primary" disabled>Adicionar</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="view-panel" data-view-panel="consultar">
+      <div class="consultar">
+        <h2>Consultar POC</h2>
+        <div class="form-grid">
+          <label><strong>Unidade*</strong>
+              <select id="unidade" required>
+                <option value="">Selecione</option>
+                <option value="vespasiano">Vespasiano</option>
+                <option value="portoacu">Porto Açu</option>
+                <option value="contagem">Contagem</option>
+              </select>
+            </label>
+            <label><strong>Setor*</strong>
+              <select id="setor" required>
+                  <option value="">Selecione</option>
+                  <option value="administrativo">Administrativo</option>
+                  <option value="caldeiraria">Caldeiraria</option>
+                  <option value="montagem">Montagem</option>
+                  <option value="usinagem">Usinagem</option>
+                  <option value="manutencao">Manutenção</option>
+              </select>
+            </label>
+            <label><strong>Subsetor*</strong>
+              <select id="subsetor" required>
+                <option value="">Selecione</option>
+                <option value="fiscal">Fiscal</option>
+                <option value="financeiro">Financeiro</option>
+                <option value="gg">GG</option>
+                <option value="inovacao">Inovação</option>
+                <option value="ti">TI</option>
+                <option value="facilities">Facilities</option>
+                <option value="almoxarifado">Almoxarifado</option>
+                <option value="ems">EMS</option>
+                <option value="pcp">PCP</option>
+                <option value="ambulatorio">Ambulatório</option>
+              </select>
+            </label>
+            <label><strong>Observador*</strong>
+              <select id="observador" required>
+                <option value="">Selecione</option>
+                <option value="davi">Davi</option>
+                <option value="brayan">Brayan</option>
+                <option value="samuel">Samuel</option>
+                <option value="lucas">Lucas</option>
+                <option value="walef">Walef</option>
+                <option value="welington">Welington</option>
+                <option value="eder">Eder</option>
+                <option value="guilherme">Guilherme</option>
+                <option value="humberto">Humberto</option>
+                <option value="wagner">Wagner</option>
+              </select>
+            </label>
+            <label>Acompanhante
+              <select id="acompanhante">
+                <option value="">Selecione</option>
+                <option value="davi">Davi</option>
+                <option value="brayan">Brayan</option>
+                <option value="samuel">Samuel</option>
+                <option value="lucas">Lucas</option>
+                <option value="walef">Walef</option>
+                <option value="welington">Welington</option>
+                <option value="eder">Eder</option>
+                <option value="guilherme">Guilherme</option>
+                <option value="humberto">Humberto</option>
+                <option value="wagner">Wagner</option>
+              </select>
+            </label>
+          <label>Data início
+            <input type="date" id="filtro-data-inicio" />
+          </label>
+          <label>Data fim
+            <input type="date" id="filtro-data-fim" />
+          </label>
+          <label>Hora início
+            <input type="time" id="filtro-hora-inicio" />
+          </label>
+          <label>Hora fim
+            <input type="time" id="filtro-hora-fim" />
+          </label>
+        </div>
+        <div class="form-actions">
+          <button type="button" id="consultar-btn" class="primary">Consultar</button>
+        </div>
+        <div id="consulta-resultado" class="consulta-resultado" aria-live="polite"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="assets/js/app.js"></script>
+</body>
+</html>

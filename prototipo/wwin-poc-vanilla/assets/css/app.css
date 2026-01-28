@@ -1,0 +1,238 @@
+body {
+  background: var(--cor-cinza-fundo);
+  color: var(--cor-texto-escuro);
+}
+
+.container {
+  width: min(1200px, 92%);
+  margin: 0 auto;
+}
+
+.app-header {
+  background: var(--cor-primaria);
+  color: var(--cor-cinza-fundo);
+  padding: 24px 0;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.logo {
+  width: 64px;
+  height: auto;
+}
+
+.app-eyebrow {
+  margin: 0;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--cor-cinza-fundo);
+}
+
+.app-header h1 {
+  margin: 4px 0 0;
+  color: var(--cor-cinza-fundo);
+}
+
+.app-main {
+  padding: 32px 0 64px;
+}
+
+.view-toggle {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.tab-button {
+  border: 1px solid var(--cor-texto-claro);
+  background: var(--cor-cinza-fundo);
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--cor-texto-escuro);
+}
+
+.tab-button.is-active {
+  background: var(--cor-primaria);
+  color: var(--cor-cinza-fundo);
+}
+
+.view-panel {
+  display: none;
+  background: var(--cor-cinza-fundo);
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid var(--cor-texto-claro);
+}
+
+.view-panel.is-active {
+  display: block;
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.tab {
+  border: 1px solid var(--cor-texto-claro);
+  background: var(--cor-cinza-fundo);
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--cor-texto-escuro);
+}
+
+.tab.is-active {
+  background: var(--cor-primaria);
+  color: var(--cor-cinza-fundo);
+}
+
+.tab.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tab-panel {
+  display: none;
+}
+
+.tab-panel.is-active {
+  display: block;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.95rem;
+  color: var(--cor-texto-claro);
+}
+
+input,
+select,
+textarea {
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--cor-texto-claro);
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--cor-texto-escuro);
+  background: var(--cor-cinza-fundo);
+}
+
+textarea {
+  resize: vertical;
+}
+
+.radio-group {
+  margin-top: 16px;
+  display: grid;
+  gap: 8px;
+  border: 1px dashed var(--cor-texto-claro);
+  padding: 16px;
+  border-radius: 8px;
+}
+
+.radio-group label {
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+}
+
+.unsafe-layout {
+  display: grid;
+  grid-template-columns: minmax(180px, 220px) 1fr;
+  gap: 20px;
+}
+
+.practice-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 8px;
+}
+
+.practice-list li {
+  border: 1px solid var(--cor-texto-claro);
+  border-radius: 6px;
+  padding: 8px 10px;
+  cursor: pointer;
+  color: var(--cor-texto-escuro);
+}
+
+.practice-list li.is-selected {
+  background: var(--cor-primaria);
+  color: var(--cor-cinza-fundo);
+  border-color: var(--cor-primaria);
+}
+
+.form-actions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+button.primary {
+  background: var(--cor-primaria);
+  color: var(--cor-cinza-fundo);
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+button.primary:disabled {
+  background: var(--cor-botao-secundario);
+  cursor: not-allowed;
+}
+
+.consulta-resultado {
+  margin-top: 20px;
+  padding: 16px;
+  border: 1px solid var(--cor-texto-claro);
+  border-radius: 6px;
+  background: var(--cor-cinza-fundo);
+}
+
+@media (max-width: 760px) {
+  .unsafe-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+
+.result-table th,
+.result-table td {
+  border: 1px solid var(--cor-texto-claro);
+  padding: 8px 10px;
+  text-align: left;
+  color: var(--cor-texto-escuro);
+}
+
+.result-table thead {
+  background: var(--cor-primaria);
+  color: var(--cor-cinza-fundo);
+}
