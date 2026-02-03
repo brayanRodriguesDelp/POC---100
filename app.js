@@ -947,6 +947,66 @@ function clearLogMessages() {
  * PocAI – execução real com Gemini
  * =============================== */
 window.PocAI = window.PocAI || {};
+
+/**
+ * Função auxiliar para preview de imagem processada
+ */
+window.PocAI.preprocessImageForPreview = async function(imageDataUrl) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    
+    img.onload = () => {
+      try {
+        // Criar canvas com tamanho reduzido para preview
+        const maxDimension = 800;
+        let width = img.width;
+        let height = img.height;
+        
+        if (width > maxDimension || height > maxDimension) {
+          if (width > height) {
+            height = (height / width) * maxDimension;
+            width = maxDimension;
+          } else {
+            width = (width / height) * maxDimension;
+            height = maxDimension;
+          }
+        }
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        
+        ctx.drawImage(img, 0, 0, width, height);
+        
+        const imageData = ctx.getImageData(0, 0, width, height);
+        const data = imageData.data;
+        
+        // Aplicar processamento simplificado para preview
+        for (let i = 0; i < data.length; i += 4) {
+          const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+          const contrast = 1.3;
+          const factor = (259 * (contrast * 255 + 255)) / (255 * (259 - contrast * 255));
+          let adjusted = factor * (gray - 128) + 128;
+          adjusted = Math.max(0, Math.min(255, adjusted * 1.1));
+          
+          data[i] = adjusted;
+          data[i + 1] = adjusted;
+          data[i + 2] = adjusted;
+        }
+        
+        ctx.putImageData(imageData, 0, 0);
+        resolve(canvas.toDataURL('image/png'));
+      } catch (err) {
+        reject(err);
+      }
+    };
+    
+    img.onerror = () => reject(new Error('Falha ao carregar imagem'));
+    img.src = imageDataUrl;
+  });
+};
+
 window.PocAI.run = async function () {
   const front = document.getElementById('pocAiFront');
   const back = document.getElementById('pocAiBack');
@@ -1006,11 +1066,112 @@ window.PocAI.run = async function () {
     });
   };
 
+  /**
+   * Pré-processa a imagem para melhorar qualidade do OCR
+   * - Redimensiona para resolução ideal
+   * - Aumenta contraste e nitidez
+   * - Converte para escala de cinza
+   * - Ajusta brilho
+   */
+  const preprocessImage = async (imageDataUrl) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      
+      img.onload = () => {
+        try {
+          // Criar canvas com tamanho otimizado (máximo 2000px na maior dimensão)
+          const maxDimension = 2000;
+          let width = img.width;
+          let height = img.height;
+          
+          if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = (height / width) * maxDimension;
+              width = maxDimension;
+            } else {
+              width = (width / height) * maxDimension;
+              height = maxDimension;
+            }
+          }
+          
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          
+          // Desenhar imagem redimensionada
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Obter dados da imagem
+          const imageData = ctx.getImageData(0, 0, width, height);
+          const data = imageData.data;
+          
+          // Pré-processamento: converter para escala de cinza + aumentar contraste
+          for (let i = 0; i < data.length; i += 4) {
+            // Converter para escala de cinza (luminosidade)
+            const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+            
+            // Aumentar contraste (fator de 1.5)
+            const contrast = 1.5;
+            const factor = (259 * (contrast * 255 + 255)) / (255 * (259 - contrast * 255));
+            let adjusted = factor * (gray - 128) + 128;
+            
+            // Aumentar nitidez/binarização para texto (threshold adaptativo)
+            // Se pixel for próximo de branco, tornar totalmente branco
+            // Se for próximo de preto, tornar totalmente preto
+            const threshold = 128;
+            const range = 40;
+            
+            if (adjusted > threshold + range) {
+              adjusted = 255; // Branco puro
+            } else if (adjusted < threshold - range) {
+              adjusted = 0;   // Preto puro
+            } else {
+              // Manter gradiente no meio para não perder detalhes
+              adjusted = adjusted;
+            }
+            
+            // Aplicar brilho adicional (+10%)
+            adjusted = Math.min(255, adjusted * 1.1);
+            
+            // Garantir valores válidos
+            adjusted = Math.max(0, Math.min(255, adjusted));
+            
+            data[i] = adjusted;     // R
+            data[i + 1] = adjusted; // G
+            data[i + 2] = adjusted; // B
+            // Alpha mantém
+          }
+          
+          // Aplicar dados processados de volta ao canvas
+          ctx.putImageData(imageData, 0, 0);
+          
+          // Retornar como Data URL
+          const processedDataUrl = canvas.toDataURL('image/png');
+          resolve(processedDataUrl);
+          
+        } catch (err) {
+          reject(new Error('Erro ao processar imagem: ' + err.message));
+        }
+      };
+      
+      img.onerror = () => reject(new Error('Falha ao carregar imagem para processamento.'));
+      img.src = imageDataUrl;
+    });
+  };
+
   const recognizeImage = async (file, label) => {
+    // Ler arquivo original
     const imageData = await readFileAsDataUrl(file);
     
+    // Pré-processar imagem para melhorar OCR
+    if (progress) {
+      progress.textContent = `${label}: Otimizando imagem...`;
+    }
+    const processedImage = await preprocessImage(imageData);
+    
     // Configurações otimizadas para manuscrito e cursivo
-    const result = await window.Tesseract.recognize(imageData, 'por', {
+    const result = await window.Tesseract.recognize(processedImage, 'por', {
       logger: (message) => {
         if (progress && message.status) {
           const pct = Math.round((message.progress || 0) * 100);
@@ -1022,13 +1183,16 @@ window.PocAI.run = async function () {
       tessedit_ocr_engine_mode: window.Tesseract.OEM.LSTM_ONLY,
       // Melhorar detecção de caracteres cursivos
       tessedit_char_whitelist: '',
-      preserve_interword_spaces: '1',
-      // Melhorar qualidade da imagem processada
-      tessedit_do_invert: '1',
-      textord_heavy_nr: '1'
+      preserve_interword_spaces: '1'
     });
     
-    return result?.data?.text || '';
+    const text = result?.data?.text || '';
+    const confidence = result?.data?.confidence || 0;
+    
+    console.log(`📸 ${label} - Confiança OCR: ${confidence.toFixed(1)}%`);
+    console.log(`📝 ${label} - Texto extraído (${text.length} caracteres):`, text.substring(0, 200));
+    
+    return text;
   };
 
   try {
@@ -1045,11 +1209,30 @@ window.PocAI.run = async function () {
       .filter(Boolean)
       .join('\n\n');
 
-    if (!combinedText) {
-      throw new Error('Não foi possível extrair texto das imagens.');
+    console.log(`📊 Texto total extraído: ${combinedText.length} caracteres`);
+    
+    // Validação melhorada: aceitar texto menor mas dar feedback
+    if (!combinedText || combinedText.length < 10) {
+      const errorMsg = `Texto muito curto ou ilegível (${combinedText.length} caracteres detectados).\n\n` +
+        `📸 DICAS PARA MELHORAR A FOTO:\n` +
+        `✓ Tire a foto com boa iluminação (luz natural é melhor)\n` +
+        `✓ Mantenha a câmera estável e paralela ao papel\n` +
+        `✓ Evite sombras sobre o texto\n` +
+        `✓ Certifique-se que o texto está focado e nítido\n` +
+        `✓ Evite reflexos ou brilho no papel\n` +
+        `✓ Use letra MAIÚSCULA e espaçada se possível\n\n` +
+        `Tente novamente com uma foto melhor.`;
+      
+      throw new Error(errorMsg);
+    }
+    
+    // Avisar se o texto for muito curto (mas continuar processamento)
+    if (combinedText.length < 50) {
+      console.warn(`⚠️ Texto detectado é curto (${combinedText.length} caracteres). A IA tentará interpretar...`);
+      addLogMessage(`⚠️ Pouco texto detectado (${combinedText.length} chars). Processando mesmo assim...`);
     }
 
-    addLogMessage('OCR concluído. Texto extraído.');
+    addLogMessage(`OCR concluído. Texto extraído: ${combinedText.length} caracteres.`);
 
     const selectedType = getSelectedType();
 
@@ -1254,9 +1437,75 @@ document.addEventListener('DOMContentLoaded', () => {
     modeGalleryBtn.addEventListener('click', () => setCaptureMode('gallery'));
   }
 
+  // Preview das imagens quando selecionadas
+  const setupImagePreview = (inputEl, previewId) => {
+    if (!inputEl) return;
+    
+    inputEl.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      const previewDiv = document.getElementById(previewId);
+      
+      if (!file || !previewDiv) return;
+      
+      try {
+        // Ler arquivo
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const imageDataUrl = event.target.result;
+          
+          // Pré-processar para mostrar como ficará para o OCR
+          if (window.PocAI && typeof window.PocAI.preprocessImageForPreview === 'function') {
+            const processed = await window.PocAI.preprocessImageForPreview(imageDataUrl);
+            const img = previewDiv.querySelector('img');
+            if (img) {
+              img.src = processed;
+              previewDiv.style.display = 'block';
+            }
+          } else {
+            // Fallback: mostrar imagem original
+            const img = previewDiv.querySelector('img');
+            if (img) {
+              img.src = imageDataUrl;
+              previewDiv.style.display = 'block';
+            }
+          }
+        };
+        reader.readAsDataURL(file);
+      } catch (err) {
+        console.error('Erro ao mostrar preview:', err);
+      }
+    });
+  };
+  
+  setupImagePreview(frontInput, 'previewFront');
+  setupImagePreview(backInput, 'previewBack');
+
   if (fillModalEl) {
     fillModalEl.addEventListener('show.bs.modal', () => {
       setCaptureMode('gallery');
+      
+      // Limpar previews
+      const previewFront = document.getElementById('previewFront');
+      const previewBack = document.getElementById('previewBack');
+      if (previewFront) previewFront.style.display = 'none';
+      if (previewBack) previewBack.style.display = 'none';
+      
+      // Limpar inputs
+      if (frontInput) frontInput.value = '';
+      if (backInput) backInput.value = '';
+      
+      // Limpar status e erros
+      if (modeStatus) modeStatus.textContent = 'Escolha imagens da galeria.';
+      const errorEl = document.getElementById('pocAiError');
+      const progressEl = document.getElementById('pocAiProgress');
+      if (errorEl) {
+        errorEl.classList.add('d-none');
+        errorEl.textContent = '';
+      }
+      if (progressEl) {
+        progressEl.classList.add('d-none');
+        progressEl.textContent = '';
+      }
     });
   }
 

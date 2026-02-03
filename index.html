@@ -336,11 +336,27 @@
             <div class="col-12">
               <label class="form-label"><strong>Foto da Frente*</strong></label>
               <input class="form-control" type="file" id="pocAiFront" accept="image/*">
+              <div class="image-preview mt-2" id="previewFront" style="display:none;">
+                <img style="max-width: 100%; max-height: 200px; border: 1px solid #ddd; border-radius: 4px;" />
+                <small class="d-block text-muted mt-1">Preview - Imagem processada para OCR</small>
+              </div>
             </div>
             <div class="col-12">
               <label class="form-label"><strong>Foto do Verso*</strong></label>
               <input class="form-control" type="file" id="pocAiBack" accept="image/*">
+              <div class="image-preview mt-2" id="previewBack" style="display:none;">
+                <img style="max-width: 100%; max-height: 200px; border: 1px solid #ddd; border-radius: 4px;" />
+                <small class="d-block text-muted mt-1">Preview - Imagem processada para OCR</small>
+              </div>
             </div>
+          </div>
+
+          <div class="alert alert-warning mt-3">
+            <strong>📸 Dicas para foto de qualidade:</strong><br>
+            ✓ Use boa iluminação (natural se possível)<br>
+            ✓ Mantenha câmera estável e paralela ao papel<br>
+            ✓ Evite sombras, reflexos e brilho<br>
+            ✓ Certifique-se que o texto está nítido e focado
           </div>
 
           <div class="alert alert-danger mt-3 d-none" id="pocAiError"></div>
