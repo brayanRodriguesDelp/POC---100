@@ -416,8 +416,13 @@ async function callGeminiToParse(ocrText, options) {
   const numCatCondicao = Object.keys(options.CONDICAO || {}).length;
   console.log(`📊 Total: ${numCatPratica} categorias PRATICA, ${numCatCondicao} categorias CONDICAO`);
 
-  // Limitar o texto OCR para reduzir tokens de entrada
-  const ocrLimitado = ocrText.substring(0, 500);
+  // Limpar e preparar texto OCR (aumentado limite para capturar mais conteúdo)
+  const ocrLimpo = ocrText
+    .trim()
+    .replace(/\s+/g, ' ')  // Normalizar espaços
+    .substring(0, 1500);   // Aumentado para 1500 caracteres
+  
+  console.log('📄 Texto OCR enviado ao Gemini:', ocrLimpo);
   
   // Construir lista COMPLETA e hierárquica de forma MUITO CLARA
   let estruturaDetalhada = '';
@@ -450,39 +455,80 @@ async function callGeminiToParse(ocrText, options) {
     });
   }
   
-  const prompt = `Você é um especialista em análise de segurança. Analise o texto OCR e preencha o JSON seguindo A HIERARQUIA EXATA.
+  const prompt = `Você é um especialista em análise de segurança do trabalho. Sua tarefa é INTERPRETAR o texto extraído via OCR (que pode conter erros e letra cursiva manuscrita) e preencher um formulário de POC (Prática/Condição Insegura).
 
-TEXTO OCR:
-"${ocrLimitado}"
+🔍 IMPORTANTE - LEIA O TEXTO OCR COM ATENÇÃO:
+O texto abaixo foi extraído de anotações MANUSCRITAS (letra cursiva) através de OCR, portanto pode conter:
+- Palavras incompletas ou mal interpretadas
+- Abreviações
+- Erros de leitura de caracteres cursivos
+- Estrutura informal
+
+Você DEVE interpretar o SENTIDO do texto, mesmo que esteja incompleto ou com erros.
+
+📝 TEXTO OCR EXTRAÍDO:
+"${ocrLimpo}"
 
 ${estruturaDetalhada}
 
-PASSO A PASSO OBRIGATÓRIO:
-1️⃣ Determine o TIPO: "PRATICA" (ação insegura de pessoa) OU "CONDICAO" (problema no ambiente/equipamento)
+🎯 INSTRUÇÕES CRÍTICAS:
 
-2️⃣ Olhe APENAS as categorias do tipo escolhido acima
+1️⃣ INTERPRETE O SENTIDO DO TEXTO OCR:
+   - Identifique o que está sendo relatado (mesmo com erros de OCR)
+   - Extraia informações sobre: o que foi observado, onde, quando, quem, qual o risco
+   - Se o texto menciona ferramentas, equipamentos, locais, pessoas - USE essas informações
 
-3️⃣ Escolha UMA CATEGORIA (exemplo: "B. Posição das Pessoas" OU "CI. Ambiente / Área")
-   ⚠️ ATENÇÃO: Categoria NÃO é "Risco de Queda" - isso é subcategoria!
+2️⃣ Determine o TIPO baseado no conteúdo:
+   - "PRATICA" = pessoa fazendo algo errado/inseguro
+   - "CONDICAO" = problema no ambiente, equipamento ou estrutura
+
+3️⃣ Escolha CATEGORIA que melhor se relaciona com o texto OCR:
    ⚠️ Categoria começa com letra (A., B., C., CI., etc)
+   ⚠️ NÃO confunda categoria com subcategoria!
 
-4️⃣ Depois de escolher a CATEGORIA, olhe as subcategorias DAQUELA categoria
+4️⃣ Escolha SUBCATEGORIA dentro da categoria selecionada
 
-5️⃣ Escolha UMA SUBCATEGORIA da lista daquela categoria
+5️⃣ **CRUCIAL** - Escreva "praticaInsegura" BASEADA NO CONTEÚDO DO OCR:
+   ✅ USE as informações específicas do texto (nomes de equipamentos, locais, ações mencionadas)
+   ✅ Expanda abreviações e corrija erros de OCR mantendo o sentido
+   ✅ Seja específico sobre O QUE, ONDE e COMO (baseado no texto)
+   ✅ 150-250 caracteres, 3-5 frases completas
+   
+   ❌ NÃO invente informações que não estão no texto
+   ❌ NÃO use descrições genéricas se o texto tem detalhes específicos
+   
+   EXEMPLO RUIM (genérico): "Trabalhador sem EPI em altura"
+   EXEMPLO BOM (baseado em OCR): "João da Silva realizando solda em plataforma a 6m de altura sem cinto de segurança, conforme anotado no setor de caldeiraria às 14h30"
 
-6️⃣ Escreva descrição CLARA e OBJETIVA (2-3 frases, 100-150 caracteres):
-   - Descreva O QUE foi observado
-   - ONDE e COMO estava acontecendo
-   - QUAL o risco presente
+6️⃣ **CRUCIAL** - Escreva "acaoRecomendada" RELACIONADA ao problema descrito:
+   ✅ Recomendação DIRETA para resolver o problema específico mencionado
+   ✅ Mencione ações concretas e práticas
+   ✅ Cite norma regulamentadora se aplicável (NR-35, NR-10, NR-06, NR-12, etc)
+   ✅ 150-250 caracteres, 3-5 frases completas
+   
+   EXEMPLO RUIM (genérico): "Usar EPI adequado"
+   EXEMPLO BOM (específico): "Fornecer imediatamente cinto paraquedista tipo paraquedista com talabarte duplo e instalar pontos de ancoragem conforme NR-35. Suspender atividade até regularização e DDS obrigatório."
 
-7️⃣ Escreva ação recomendada CLARA e OBJETIVA (2-3 frases, 100-150 caracteres):
-   - O QUE deve ser feito
-   - COMO corrigir
-   - Cite norma se relevante (NR-35, NR-10, NR-06)
+7️⃣ Determine "observado": colaborador/terceiro/visitante
+8️⃣ Determine "quantidade": número de pessoas (se não especificado, use 1)
 
-EXEMPLOS CORRETOS DE PREENCHIMENTO:
+EXEMPLOS DE INTERPRETAÇÃO DE OCR:
 
-Exemplo 1 - PRATICA:
+📌 Texto OCR: "trab sem capacete ponterol ativa cargas pesadas"
+Interpretação:
+{
+  "tipoRegistro": "insegura",
+  "tipoInsegura": "PRATICA",
+  "categoria": "C. EPIs",
+  "subcategoria": "C.1 Cabeça",
+  "observado": "colaborador",
+  "quantidade": 1,
+  "praticaInsegura": "Trabalhador operando sob ponte rolante com movimentação de cargas pesadas sem uso de capacete de segurança. Risco de trauma craniano por queda de materiais.",
+  "acaoRecomendada": "Fornecer capacete classe A (CA válido) imediatamente e proibir acesso à área sem EPI. Realizar DDS sobre NR-06 e riscos de queda de objetos. Aplicar advertência ao responsável direto."
+}
+
+📌 Texto OCR: "escada 5m irregular apoio errado queda livre manut eletrica"
+Interpretação:
 {
   "tipoRegistro": "insegura",
   "tipoInsegura": "PRATICA",
@@ -490,39 +536,34 @@ Exemplo 1 - PRATICA:
   "subcategoria": "B.3 Risco de Queda",
   "observado": "colaborador",
   "quantidade": 1,
-  "praticaInsegura": "Colaborador realizando manutenção elétrica em cima de escada de 4 metros sem cinto de segurança ou linha de vida. Escada sem calço de segurança em superfície irregular.",
-  "acaoRecomendada": "Interromper atividade imediatamente. Fornecer cinto paraquedista com talabarte e instalar pontos de ancoragem certificados. Treinar conforme NR-35 antes de retornar."
+  "praticaInsegura": "Colaborador realizando manutenção elétrica em escada de aproximadamente 5 metros em superfície irregular, com apoio inadequado e sem proteção contra quedas. Risco iminente de queda e choque elétrico.",
+  "acaoRecomendada": "Interromper trabalho imediatamente. Instalar plataforma elevatória ou andaime com guarda-corpo. Fornecer cinto paraquedista com ponto de ancoragem certificado conforme NR-35. Reenergizar apenas após correções."
 }
 
-Exemplo 2 - CONDICAO:
+📌 Texto OCR: "piso prod oleo derram 2m escorr semaviso isolam"
+Interpretação:
 {
   "tipoRegistro": "insegura",
   "tipoInsegura": "CONDICAO",
   "categoria": "CI. Ambiente / Área",
   "subcategoria": "CI.1 Piso irregular / escorregadio",
-  "observado": "visitante",
-  "quantidade": 2,
-  "praticaInsegura": "Derramamento de óleo hidráulico no piso da produção com aproximadamente 3 metros de diâmetro. Superfície extremamente escorregadia sem sinalização ou isolamento.",
-  "acaoRecomendada": "Sinalizar e isolar área imediatamente com cones e fita zebrada. Realizar limpeza com absorvente e desengordurante. Corrigir vazamento da prensa hidráulica."
+  "observado": "colaborador",
+  "quantidade": 1,
+  "praticaInsegura": "Derramamento de óleo no piso da área de produção com aproximadamente 2 metros de diâmetro, superfície extremamente escorregadia sem sinalização de alerta ou isolamento de segurança. Risco de quedas e lesões.",
+  "acaoRecomendada": "Isolar área imediatamente com cones e fita zebrada. Sinalizar com placas de piso escorregadio. Realizar limpeza com absorvente industrial e desengordurante. Identificar e corrigir fonte do vazamento urgentemente."
 }
 
-Exemplo 3 - PRATICA com EPI:
-{
-  "tipoRegistro": "insegura",
-  "tipoInsegura": "PRATICA",
-  "categoria": "C. EPIs",
-  "subcategoria": "C.1 Cabeça",
-  "observado": "terceiro",
-  "quantidade": 3,
-  "praticaInsegura": "Três terceiros realizando carga e descarga sem capacete em área com ponte rolante ativa. Movimentação de cargas suspensas de até 2 toneladas sobre os trabalhadores.",
-  "acaoRecomendada": "Fornecer capacetes classe A certificados imediatamente. Realizar DDS sobre riscos de queda de objetos. Aplicar advertência formal ao encarregado."
-}
+⚠️ REGRAS DE VALIDAÇÃO:
+✅ "tipoRegistro" sempre "insegura"
+✅ "tipoInsegura": apenas "PRATICA" ou "CONDICAO"
+✅ "categoria": DEVE estar na lista de categorias do tipo escolhido (começa com letra)
+✅ "subcategoria": DEVE estar na lista de subcategorias da categoria escolhida
+✅ "observado": apenas "colaborador", "terceiro" ou "visitante"
+✅ "quantidade": número inteiro ≥ 1
+✅ "praticaInsegura": BASEADA no texto OCR, específica, 150-250 caracteres
+✅ "acaoRecomendada": RELACIONADA ao problema, específica, 150-250 caracteres
 
-⚠️ ERROS COMUNS A EVITAR:
-❌ categoria: "Risco de Queda" → ERRADO! Isso é subcategoria
-✅ categoria: "B. Posição das Pessoas", subcategoria: "B.3 Risco de Queda" → CORRETO!
-
-RETORNE APENAS O JSON PREENCHIDO (sem explicações, sem markdown):`;
+RETORNE APENAS O JSON (sem \`\`\`json, sem explicações, sem markdown):`;
 
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
@@ -967,14 +1008,26 @@ window.PocAI.run = async function () {
 
   const recognizeImage = async (file, label) => {
     const imageData = await readFileAsDataUrl(file);
+    
+    // Configurações otimizadas para manuscrito e cursivo
     const result = await window.Tesseract.recognize(imageData, 'por', {
       logger: (message) => {
         if (progress && message.status) {
           const pct = Math.round((message.progress || 0) * 100);
           progress.textContent = `${label}: ${message.status} ${pct}%`;
         }
-      }
+      },
+      // Configurações para melhorar reconhecimento de manuscrito
+      tessedit_pageseg_mode: window.Tesseract.PSM.AUTO,
+      tessedit_ocr_engine_mode: window.Tesseract.OEM.LSTM_ONLY,
+      // Melhorar detecção de caracteres cursivos
+      tessedit_char_whitelist: '',
+      preserve_interword_spaces: '1',
+      // Melhorar qualidade da imagem processada
+      tessedit_do_invert: '1',
+      textord_heavy_nr: '1'
     });
+    
     return result?.data?.text || '';
   };
 
