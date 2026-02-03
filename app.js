@@ -455,85 +455,80 @@ async function callGeminiToParse(ocrText, options) {
     });
   }
   
-  const prompt = `Você é um assistente de transcrição para formulários de segurança do trabalho. Sua tarefa é transcrever o texto OCR EXATAMENTE como foi escrito, fazendo APENAS correções ortográficas mínimas.
+  const prompt = `Você é um especialista em análise de segurança do trabalho. Sua tarefa é INTERPRETAR o texto extraído via OCR (que pode conter erros e letra cursiva manuscrita) e preencher um formulário de POC (Prática/Condição Insegura).
+
+🔍 IMPORTANTE - LEIA O TEXTO OCR COM ATENÇÃO:
+O texto abaixo foi extraído de anotações MANUSCRITAS (letra cursiva) através de OCR, portanto pode conter:
+- Palavras incompletas ou mal interpretadas
+- Abreviações
+- Erros de leitura de caracteres cursivos
+- Estrutura informal
+
+Você DEVE interpretar o SENTIDO do texto, mesmo que esteja incompleto ou com erros.
 
 📝 TEXTO OCR EXTRAÍDO:
 "${ocrLimpo}"
 
 ${estruturaDetalhada}
 
-🎯 REGRAS ABSOLUTAS DE TRANSCRIÇÃO:
+🎯 INSTRUÇÕES CRÍTICAS:
 
-1️⃣ **FIDELIDADE MÁXIMA AO TEXTO ORIGINAL:**
-   ✅ Transcreva O CONTEÚDO EXATO do texto OCR
-   ✅ Use as MESMAS PALAVRAS que aparecem no texto (corrigindo apenas erros de digitação/OCR)
-   ✅ Mantenha a MESMA ESTRUTURA da descrição original
-   ✅ Preserve TODOS os detalhes específicos: nomes, locais, números, medidas, horários
-   ✅ Se o texto menciona "João", "setor A", "3 metros", "14h" - MANTENHA exatamente isso
+1️⃣ INTERPRETE O SENTIDO DO TEXTO OCR:
+   - Identifique o que está sendo relatado (mesmo com erros de OCR)
+   - Extraia informações sobre: o que foi observado, onde, quando, quem, qual o risco
+   - Se o texto menciona ferramentas, equipamentos, locais, pessoas - USE essas informações
+
+2️⃣ Determine o TIPO baseado no conteúdo:
+   - "PRATICA" = pessoa fazendo algo errado/inseguro
+   - "CONDICAO" = problema no ambiente, equipamento ou estrutura
+
+3️⃣ Escolha CATEGORIA que melhor se relaciona com o texto OCR:
+   ⚠️ Categoria começa com letra (A., B., C., CI., etc)
+   ⚠️ NÃO confunda categoria com subcategoria!
+
+4️⃣ Escolha SUBCATEGORIA dentro da categoria selecionada
+
+5️⃣ **CRUCIAL** - Escreva "praticaInsegura" BASEADA NO CONTEÚDO DO OCR:
+   ✅ USE as informações específicas do texto (nomes de equipamentos, locais, ações mencionadas)
+   ✅ Expanda abreviações e corrija erros de OCR mantendo o sentido
+   ✅ Seja específico sobre O QUE, ONDE e COMO (baseado no texto)
+   ✅ 150-250 caracteres, 3-5 frases completas
    
-   ❌ NÃO reescreva com suas próprias palavras
-   ❌ NÃO adicione informações que não estão no texto
-   ❌ NÃO mude a forma de descrever (se está em 1ª pessoa, mantenha; se em 3ª, mantenha)
-   ❌ NÃO expanda o texto além do necessário
-
-2️⃣ **CORREÇÕES PERMITIDAS (APENAS):**
-   ✅ Corrigir erros ortográficos óbvios (exmplo → exemplo)
-   ✅ Corrigir erros de OCR em palavras conhecidas (s3tor → setor)
-   ✅ Expandir abreviações comuns e óbvias (manut → manutenção, tb → também)
-   ✅ Remover caracteres de ruído sem sentido (###, @@@, ???, símbolos aleatórios)
-   ✅ Completar palavras obviamente incompletas pelo contexto (trab → trabalhador)
-   ✅ Adicionar pontuação básica se totalmente ausente (pontos finais, vírgulas essenciais)
+   ❌ NÃO invente informações que não estão no texto
+   ❌ NÃO use descrições genéricas se o texto tem detalhes específicos
    
-   ❌ NÃO reescrever frases inteiras
-   ❌ NÃO mudar termos técnicos ou descrições
-   ❌ NÃO adicionar detalhes técnicos que não foram mencionados
+   EXEMPLO RUIM (genérico): "Trabalhador sem EPI em altura"
+   EXEMPLO BOM (baseado em OCR): "João da Silva realizando solda em plataforma a 6m de altura sem cinto de segurança, conforme anotado no setor de caldeiraria às 14h30"
 
-3️⃣ **Como transcrever "praticaInsegura":**
-   - Pegue a descrição EXATA do problema no texto OCR
-   - Corrija APENAS ortografia e erros de OCR
-   - Mantenha os mesmos detalhes (nomes, locais, medidas, observações)
-   - Organize em frases claras mas SEM INVENTAR informação
-   - Tamanho: conforme o texto original (não force 150-250 se o texto é menor/maior)
+6️⃣ **CRUCIAL** - Escreva "acaoRecomendada" RELACIONADA ao problema descrito:
+   ✅ Recomendação DIRETA para resolver o problema específico mencionado
+   ✅ Mencione ações concretas e práticas
+   ✅ Cite norma regulamentadora se aplicável (NR-35, NR-10, NR-06, NR-12, etc)
+   ✅ 150-250 caracteres, 3-5 frases completas
+   
+   EXEMPLO RUIM (genérico): "Usar EPI adequado"
+   EXEMPLO BOM (específico): "Fornecer imediatamente cinto paraquedista tipo paraquedista com talabarte duplo e instalar pontos de ancoragem conforme NR-35. Suspender atividade até regularização e DDS obrigatório."
 
-4️⃣ **Como transcrever "acaoRecomendada":**
-   - Se o texto OCR TEM uma ação recomendada escrita → TRANSCREVA ELA (corrigindo ortografia)
-   - Se o texto OCR NÃO tem ação recomendada → crie uma ação DIRETA E SIMPLES baseada no problema descrito, usando linguagem objetiva
-   - Mantenha COERENTE com o problema específico relatado
-   - Tamanho: conforme necessário (não force tamanho específico)
+7️⃣ Determine "observado": colaborador/terceiro/visitante
+8️⃣ Determine "quantidade": número de pessoas (se não especificado, use 1)
 
-5️⃣ **Escolha categoria/subcategoria/tipo:**
-   - Analise o CONTEÚDO do problema descrito
-   - Escolha tipo: PRATICA (pessoa fazendo algo errado) ou CONDICAO (problema ambiente/equipamento)
-   - Escolha categoria e subcategoria que MELHOR se encaixam
-   - Categorias começam com letra (A., B., C., CI., etc)
+EXEMPLOS DE INTERPRETAÇÃO DE OCR:
 
-📌 EXEMPLOS DE TRANSCRIÇÃO FIEL:
-
-**Exemplo 1:**
-Texto OCR: "colab sem luva manuseio quimco acdo sulfrico deramt na mao risco qeimadura"
-
-Transcrição CORRETA:
+📌 Texto OCR: "trab sem capacete ponterol ativa cargas pesadas"
+Interpretação:
 {
   "tipoRegistro": "insegura",
   "tipoInsegura": "PRATICA",
   "categoria": "C. EPIs",
-  "subcategoria": "C.6 Mãos / Braços",
+  "subcategoria": "C.1 Cabeça",
   "observado": "colaborador",
   "quantidade": 1,
-  "praticaInsegura": "Colaborador sem luva manuseando químico ácido sulfúrico derramado na mão, risco de queimadura.",
-  "acaoRecomendada": "Fornecer luvas de proteção química adequadas para manuseio de ácido sulfúrico. Lavar imediatamente a área afetada e encaminhar para atendimento médico."
+  "praticaInsegura": "Trabalhador operando sob ponte rolante com movimentação de cargas pesadas sem uso de capacete de segurança. Risco de trauma craniano por queda de materiais.",
+  "acaoRecomendada": "Fornecer capacete classe A (CA válido) imediatamente e proibir acesso à área sem EPI. Realizar DDS sobre NR-06 e riscos de queda de objetos. Aplicar advertência ao responsável direto."
 }
 
-❌ ERRADO (reescrita inventada):
-"praticaInsegura": "Foi observado um trabalhador operando com substâncias corrosivas de alta periculosidade sem equipamento de proteção individual adequado para proteção das extremidades superiores conforme estabelece a NR-06..."
-
-✅ CORRETO (fiel ao original):
-"praticaInsegura": "Colaborador sem luva manuseando químico ácido sulfúrico derramado na mão, risco de queimadura."
-
-**Exemplo 2:**
-Texto OCR: "Marcos silva soldand plataforma 6 mtros s cinto escdad bambolendo"
-
-Transcrição CORRETA:
+📌 Texto OCR: "escada 5m irregular apoio errado queda livre manut eletrica"
+Interpretação:
 {
   "tipoRegistro": "insegura",
   "tipoInsegura": "PRATICA",
@@ -541,14 +536,12 @@ Transcrição CORRETA:
   "subcategoria": "B.3 Risco de Queda",
   "observado": "colaborador",
   "quantidade": 1,
-  "praticaInsegura": "Marcos Silva soldando em plataforma a 6 metros sem cinto, escada bamboleando.",
-  "acaoRecomendada": "Interromper trabalho imediatamente. Fornecer cinto de segurança tipo paraquedista e estabilizar escada ou usar plataforma adequada."
+  "praticaInsegura": "Colaborador realizando manutenção elétrica em escada de aproximadamente 5 metros em superfície irregular, com apoio inadequado e sem proteção contra quedas. Risco iminente de queda e choque elétrico.",
+  "acaoRecomendada": "Interromper trabalho imediatamente. Instalar plataforma elevatória ou andaime com guarda-corpo. Fornecer cinto paraquedista com ponto de ancoragem certificado conforme NR-35. Reenergizar apenas após correções."
 }
 
-**Exemplo 3:**
-Texto OCR: "piso prod c oleo 3m nao tem sinalizaçao pessoal pisano"
-
-Transcrição CORRETA:
+📌 Texto OCR: "piso prod oleo derram 2m escorr semaviso isolam"
+Interpretação:
 {
   "tipoRegistro": "insegura",
   "tipoInsegura": "CONDICAO",
@@ -556,21 +549,21 @@ Transcrição CORRETA:
   "subcategoria": "CI.1 Piso irregular / escorregadio",
   "observado": "colaborador",
   "quantidade": 1,
-  "praticaInsegura": "Piso da produção com óleo em área de 3 metros, não tem sinalização, pessoal pisando.",
-  "acaoRecomendada": "Isolar área imediatamente, sinalizar piso escorregadio, realizar limpeza e identificar fonte do vazamento."
+  "praticaInsegura": "Derramamento de óleo no piso da área de produção com aproximadamente 2 metros de diâmetro, superfície extremamente escorregadia sem sinalização de alerta ou isolamento de segurança. Risco de quedas e lesões.",
+  "acaoRecomendada": "Isolar área imediatamente com cones e fita zebrada. Sinalizar com placas de piso escorregadio. Realizar limpeza com absorvente industrial e desengordurante. Identificar e corrigir fonte do vazamento urgentemente."
 }
 
-⚠️ VALIDAÇÃO FINAL:
+⚠️ REGRAS DE VALIDAÇÃO:
 ✅ "tipoRegistro" sempre "insegura"
-✅ "tipoInsegura": "PRATICA" ou "CONDICAO"
-✅ "categoria": começa com letra, da lista do tipo escolhido
-✅ "subcategoria": da lista da categoria escolhida
-✅ "observado": "colaborador", "terceiro" ou "visitante"
-✅ "quantidade": número ≥ 1
-✅ "praticaInsegura": TRANSCRIÇÃO FIEL do texto OCR (corrigindo apenas ortografia)
-✅ "acaoRecomendada": Ação direta e simples relacionada ao problema
+✅ "tipoInsegura": apenas "PRATICA" ou "CONDICAO"
+✅ "categoria": DEVE estar na lista de categorias do tipo escolhido (começa com letra)
+✅ "subcategoria": DEVE estar na lista de subcategorias da categoria escolhida
+✅ "observado": apenas "colaborador", "terceiro" ou "visitante"
+✅ "quantidade": número inteiro ≥ 1
+✅ "praticaInsegura": BASEADA no texto OCR, específica, 150-250 caracteres
+✅ "acaoRecomendada": RELACIONADA ao problema, específica, 150-250 caracteres
 
-RETORNE APENAS O JSON (sem \`\`\`json, sem explicações):`;
+RETORNE APENAS O JSON (sem \`\`\`json, sem explicações, sem markdown):`;
 
   const response = await fetch(
     `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
@@ -954,6 +947,47 @@ function clearLogMessages() {
  * PocAI – execução real com Gemini
  * =============================== */
 window.PocAI = window.PocAI || {};
+
+/**
+ * Limpa ruído comum do OCR
+ * Remove caracteres aleatórios, símbolos sem sentido, etc.
+ */
+function cleanOCRText(text) {
+  if (!text) return '';
+  
+  let cleaned = text;
+  
+  // Remover sequências de caracteres repetidos sem sentido
+  cleaned = cleaned.replace(/([^a-zA-Z0-9àáâãäåèéêëìíîïòóôõöùúûüçñÀ-ÿ\s])\1{3,}/g, '');
+  
+  // Remover linhas que são só símbolos/números aleatórios (mais de 70% de não-letras)
+  const lines = cleaned.split('\n');
+  const cleanedLines = lines.filter(line => {
+    const trimmed = line.trim();
+    if (trimmed.length < 2) return false;
+    
+    const letters = trimmed.match(/[a-zA-ZàáâãäåèéêëìíîïòóôõöùúûüçñÀ-ÿ]/g) || [];
+    const ratio = letters.length / trimmed.length;
+    
+    // Manter linha se pelo menos 30% são letras
+    return ratio > 0.3;
+  });
+  
+  cleaned = cleanedLines.join('\n');
+  
+  // Remover múltiplos espaços
+  cleaned = cleaned.replace(/\s{3,}/g, ' ');
+  
+  // Remover múltiplas quebras de linha
+  cleaned = cleaned.replace(/\n{3,}/g, '\n\n');
+  
+  // Remover caracteres de controle e especiais comuns em OCR ruim
+  cleaned = cleaned.replace(/[►▼◄▲●○■□▪▫]/g, '');
+  cleaned = cleaned.replace(/[|]{3,}/g, '');
+  
+  return cleaned.trim();
+}
+
 window.PocAI.run = async function () {
   const front = document.getElementById('pocAiFront');
   const back = document.getElementById('pocAiBack');
@@ -1013,11 +1047,160 @@ window.PocAI.run = async function () {
     });
   };
 
+  /**
+   * Pré-processa a imagem para melhorar qualidade do OCR
+   * Especialmente importante para fotos tiradas pela câmera do celular
+   * - Corrige orientação EXIF
+   * - Redimensiona para resolução ideal
+   * - Aumenta contraste e nitidez agressivamente
+   * - Converte para escala de cinza
+   * - Aplica binarização (preto/branco)
+   */
+  const preprocessImage = async (imageDataUrl) => {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      
+      img.onload = () => {
+        try {
+          // Calcular tamanho ideal (maior resolução para melhor OCR)
+          const maxDimension = 3000; // Aumentado de 2000 para 3000
+          let width = img.width;
+          let height = img.height;
+          
+          // Se imagem for muito pequena, aumentar
+          if (width < 1500 && height < 1500) {
+            const scale = 1500 / Math.max(width, height);
+            width = Math.floor(width * scale);
+            height = Math.floor(height * scale);
+          }
+          // Se imagem for muito grande, reduzir
+          else if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = Math.floor((height / width) * maxDimension);
+              width = maxDimension;
+            } else {
+              width = Math.floor((width / height) * maxDimension);
+              height = maxDimension;
+            }
+          }
+          
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          
+          // Fundo branco para garantir contraste
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, width, height);
+          
+          // Desenhar imagem redimensionada com suavização desligada para texto nítido
+          ctx.imageSmoothingEnabled = false;
+          ctx.drawImage(img, 0, 0, width, height);
+          
+          // Obter dados da imagem
+          const imageData = ctx.getImageData(0, 0, width, height);
+          const data = imageData.data;
+          
+          // Processamento agressivo para fotos de celular
+          for (let i = 0; i < data.length; i += 4) {
+            // Converter para escala de cinza (luminosidade)
+            const gray = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2];
+            
+            // Aumentar contraste MUITO (fator 2.0)
+            const contrast = 2.0;
+            const factor = (259 * (contrast * 255 + 255)) / (255 * (259 - contrast * 255));
+            let adjusted = factor * (gray - 128) + 128;
+            
+            // Binarização agressiva - threshold adaptativo
+            // Tornar mais sensível para separar texto de fundo
+            const threshold = 130; // Threshold mais alto
+            
+            if (adjusted > threshold) {
+              adjusted = 255; // Branco puro (fundo)
+            } else {
+              adjusted = 0;   // Preto puro (texto)
+            }
+            
+            // Garantir valores válidos
+            adjusted = Math.max(0, Math.min(255, adjusted));
+            
+            data[i] = adjusted;     // R
+            data[i + 1] = adjusted; // G
+            data[i + 2] = adjusted; // B
+            data[i + 3] = 255;      // Alpha total
+          }
+          
+          // Aplicar nitidez extra (filtro de convolução)
+          const sharpenedData = applySharpenFilter(imageData, width, height);
+          
+          // Aplicar dados processados de volta ao canvas
+          ctx.putImageData(sharpenedData, 0, 0);
+          
+          // Retornar como Data URL em alta qualidade
+          const processedDataUrl = canvas.toDataURL('image/png', 1.0);
+          resolve(processedDataUrl);
+          
+        } catch (err) {
+          reject(new Error('Erro ao processar imagem: ' + err.message));
+        }
+      };
+      
+      img.onerror = () => reject(new Error('Falha ao carregar imagem para processamento.'));
+      img.src = imageDataUrl;
+    });
+  };
+
+  /**
+   * Aplica filtro de nitidez (sharpen) na imagem
+   */
+  const applySharpenFilter = (imageData, width, height) => {
+    const data = imageData.data;
+    const output = new Uint8ClampedArray(data);
+    
+    // Kernel de nitidez 3x3
+    const kernel = [
+      0, -1, 0,
+      -1, 5, -1,
+      0, -1, 0
+    ];
+    
+    // Aplicar convolução
+    for (let y = 1; y < height - 1; y++) {
+      for (let x = 1; x < width - 1; x++) {
+        let r = 0, g = 0, b = 0;
+        
+        for (let ky = -1; ky <= 1; ky++) {
+          for (let kx = -1; kx <= 1; kx++) {
+            const idx = ((y + ky) * width + (x + kx)) * 4;
+            const weight = kernel[(ky + 1) * 3 + (kx + 1)];
+            r += data[idx] * weight;
+            g += data[idx + 1] * weight;
+            b += data[idx + 2] * weight;
+          }
+        }
+        
+        const outIdx = (y * width + x) * 4;
+        output[outIdx] = Math.min(255, Math.max(0, r));
+        output[outIdx + 1] = Math.min(255, Math.max(0, g));
+        output[outIdx + 2] = Math.min(255, Math.max(0, b));
+      }
+    }
+    
+    return new ImageData(output, width, height);
+  };
+
   const recognizeImage = async (file, label) => {
+    // Ler arquivo original
     const imageData = await readFileAsDataUrl(file);
     
+    // Pré-processar imagem para melhorar OCR
+    if (progress) {
+      progress.textContent = `${label}: Otimizando imagem...`;
+    }
+    const processedImage = await preprocessImage(imageData);
+    
     // Configurações otimizadas para manuscrito e cursivo
-    const result = await window.Tesseract.recognize(imageData, 'por', {
+    const result = await window.Tesseract.recognize(processedImage, 'por', {
       logger: (message) => {
         if (progress && message.status) {
           const pct = Math.round((message.progress || 0) * 100);
@@ -1029,13 +1212,16 @@ window.PocAI.run = async function () {
       tessedit_ocr_engine_mode: window.Tesseract.OEM.LSTM_ONLY,
       // Melhorar detecção de caracteres cursivos
       tessedit_char_whitelist: '',
-      preserve_interword_spaces: '1',
-      // Melhorar qualidade da imagem processada
-      tessedit_do_invert: '1',
-      textord_heavy_nr: '1'
+      preserve_interword_spaces: '1'
     });
     
-    return result?.data?.text || '';
+    const text = result?.data?.text || '';
+    const confidence = result?.data?.confidence || 0;
+    
+    console.log(`📸 ${label} - Confiança OCR: ${confidence.toFixed(1)}%`);
+    console.log(`📝 ${label} - Texto extraído (${text.length} caracteres):`, text.substring(0, 200));
+    
+    return text;
   };
 
   try {
@@ -1052,11 +1238,37 @@ window.PocAI.run = async function () {
       .filter(Boolean)
       .join('\n\n');
 
-    if (!combinedText) {
-      throw new Error('Não foi possível extrair texto das imagens.');
+    console.log(`📊 Texto total extraído (bruto): ${combinedText.length} caracteres`);
+    console.log(`📝 Texto bruto:`, combinedText.substring(0, 300));
+    
+    // Limpar ruído do OCR (caracteres aleatórios, símbolos sem sentido)
+    const cleanedText = cleanOCRText(combinedText);
+    console.log(`🧹 Texto limpo: ${cleanedText.length} caracteres`);
+    console.log(`📝 Texto limpo:`, cleanedText.substring(0, 300));
+    
+    // Validação melhorada: aceitar texto menor mas dar feedback
+    if (!cleanedText || cleanedText.length < 10) {
+      const errorMsg = `Texto muito curto ou ilegível (${cleanedText.length} caracteres após limpeza).\n\n` +
+        `📸 DICAS PARA MELHORAR A FOTO:\n` +
+        `✓ Tire a foto com boa iluminação (luz natural é melhor)\n` +
+        `✓ Mantenha a câmera estável e paralela ao papel\n` +
+        `✓ Evite sombras sobre o texto\n` +
+        `✓ Certifique-se que o texto está focado e nítido\n` +
+        `✓ Evite reflexos ou brilho no papel\n` +
+        `✓ Aproxime mais da escrita (preencher o enquadramento)\n` +
+        `✓ Use letra MAIÚSCULA e espaçada se possível\n\n` +
+        `Tente novamente com uma foto melhor.`;
+      
+      throw new Error(errorMsg);
+    }
+    
+    // Avisar se o texto for muito curto (mas continuar processamento)
+    if (cleanedText.length < 50) {
+      console.warn(`⚠️ Texto detectado é curto (${cleanedText.length} caracteres). A IA tentará interpretar...`);
+      addLogMessage(`⚠️ Pouco texto detectado (${cleanedText.length} chars). Processando mesmo assim...`);
     }
 
-    addLogMessage('OCR concluído. Texto extraído.');
+    addLogMessage(`OCR concluído. Texto limpo: ${cleanedText.length} caracteres.`);
 
     const selectedType = getSelectedType();
 
@@ -1065,7 +1277,7 @@ window.PocAI.run = async function () {
       addLogMessage('Tipo de registro não é "insegura". Preenchendo campo de reconhecimento...');
       const reconhecimento = document.getElementById('reconhecimento');
       if (reconhecimento && !reconhecimento.value.trim()) {
-        reconhecimento.value = combinedText;
+        reconhecimento.value = cleanedText;
       }
       updateUI();
       status.textContent = 'Leitura concluída. Campo preenchido com OCR.';
@@ -1081,7 +1293,7 @@ window.PocAI.run = async function () {
     let parsed;
     
     try {
-      parsed = await callGeminiToParse(combinedText, options);
+      parsed = await callGeminiToParse(cleanedText, options);
       console.log('✅ Parsed do Gemini:', JSON.stringify(parsed, null, 2));
       addLogMessage(`JSON recebido: ${JSON.stringify(parsed)}`);
       
@@ -1114,22 +1326,22 @@ window.PocAI.run = async function () {
       console.error('Erro ao chamar Gemini:', geminiError);
       addLogMessage(`⚠ Erro no Gemini: ${geminiError.message}`);
       
-      // Fallback: preencher apenas os textareas com OCR bruto
-      addLogMessage('Usando fallback: preenchendo campos de texto com OCR bruto.');
+      // Fallback: preencher apenas os textareas com OCR limpo
+      addLogMessage('Usando fallback: preenchendo campos de texto com OCR limpo.');
       const pratica = document.getElementById('pratica-insegura');
       const acao = document.getElementById('acao-recomendada');
       if (pratica && !pratica.value.trim()) {
-        pratica.value = combinedText;
+        pratica.value = cleanedText;
       }
       if (acao && !acao.value.trim()) {
-        acao.value = combinedText;
+        acao.value = cleanedText;
       }
       updateUI();
-      status.textContent = 'Erro na interpretação IA. Campos preenchidos com OCR bruto.';
+      status.textContent = 'Erro na interpretação IA. Campos preenchidos com OCR.';
       
       if (error) {
         error.classList.remove('d-none');
-        error.textContent = `Erro ao processar com Gemini: ${geminiError.message}. Campos preenchidos com texto bruto.`;
+        error.textContent = `Erro ao processar com Gemini: ${geminiError.message}. Campos preenchidos com texto OCR.`;
       }
     }
 
@@ -1188,42 +1400,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const setCaptureMode = (mode) => {
     if (!frontInput || !backInput) return;
-    
+    const captureValue = mode === 'camera' ? 'environment' : null;
     [frontInput, backInput].forEach((input) => {
-      if (mode === 'camera') {
-        // Modo câmera: usar câmera traseira do celular
-        input.setAttribute('capture', 'environment');
-        // Adicionar accept específico para garantir que abre a câmera
-        input.setAttribute('accept', 'image/*');
+      if (captureValue) {
+        input.setAttribute('capture', captureValue);
       } else {
-        // Modo galeria: remover capture para permitir escolher da galeria
         input.removeAttribute('capture');
-        input.setAttribute('accept', 'image/*');
       }
-      // Limpar valor anterior
       input.value = '';
     });
-    
-    // Atualizar visual dos botões
-    if (modeCameraBtn && modeGalleryBtn) {
-      if (mode === 'camera') {
-        modeCameraBtn.classList.remove('btn-outline-primary');
-        modeCameraBtn.classList.add('btn-primary');
-        modeGalleryBtn.classList.remove('btn-primary');
-        modeGalleryBtn.classList.add('btn-outline-primary');
-      } else {
-        modeGalleryBtn.classList.remove('btn-outline-primary');
-        modeGalleryBtn.classList.add('btn-primary');
-        modeCameraBtn.classList.remove('btn-primary');
-        modeCameraBtn.classList.add('btn-outline-primary');
-      }
-    }
-    
     if (modeStatus) {
       modeStatus.textContent =
         mode === 'camera'
-          ? '📸 Modo câmera ativado. Clique nos campos acima para tirar as fotos.'
-          : '🖼️ Modo galeria ativado. Escolha as imagens salvas.';
+          ? 'Modo câmera ativado. Tire as fotos.'
+          : 'Escolha imagens da galeria.';
     }
   };
 
@@ -1283,77 +1473,9 @@ document.addEventListener('DOMContentLoaded', () => {
     modeGalleryBtn.addEventListener('click', () => setCaptureMode('gallery'));
   }
 
-  // Preview das imagens quando selecionadas
-  const setupImagePreview = (inputEl, previewId) => {
-    if (!inputEl) return;
-    
-    inputEl.addEventListener('change', async (e) => {
-      const file = e.target.files?.[0];
-      const previewDiv = document.getElementById(previewId);
-      
-      if (!file || !previewDiv) return;
-      
-      try {
-        // Ler arquivo
-        const reader = new FileReader();
-        reader.onload = async (event) => {
-          const imageDataUrl = event.target.result;
-          
-          // Pré-processar para mostrar como ficará para o OCR
-          if (window.PocAI && typeof window.PocAI.preprocessImageForPreview === 'function') {
-            const processed = await window.PocAI.preprocessImageForPreview(imageDataUrl);
-            const img = previewDiv.querySelector('img');
-            if (img) {
-              img.src = processed;
-              previewDiv.style.display = 'block';
-            }
-          } else {
-            // Fallback: mostrar imagem original
-            const img = previewDiv.querySelector('img');
-            if (img) {
-              img.src = imageDataUrl;
-              previewDiv.style.display = 'block';
-            }
-          }
-        };
-        reader.readAsDataURL(file);
-      } catch (err) {
-        console.error('Erro ao mostrar preview:', err);
-      }
-    });
-  };
-  
-  setupImagePreview(frontInput, 'previewFront');
-  setupImagePreview(backInput, 'previewBack');
-
   if (fillModalEl) {
     fillModalEl.addEventListener('show.bs.modal', () => {
-      // Iniciar sempre no modo galeria
-      setTimeout(() => {
-        setCaptureMode('gallery');
-      }, 100);
-      
-      // Limpar previews
-      const previewFront = document.getElementById('previewFront');
-      const previewBack = document.getElementById('previewBack');
-      if (previewFront) previewFront.style.display = 'none';
-      if (previewBack) previewBack.style.display = 'none';
-      
-      // Limpar inputs
-      if (frontInput) frontInput.value = '';
-      if (backInput) backInput.value = '';
-      
-      // Limpar status e erros
-      const errorEl = document.getElementById('pocAiError');
-      const progressEl = document.getElementById('pocAiProgress');
-      if (errorEl) {
-        errorEl.classList.add('d-none');
-        errorEl.textContent = '';
-      }
-      if (progressEl) {
-        progressEl.classList.add('d-none');
-        progressEl.textContent = '';
-      }
+      setCaptureMode('gallery');
     });
   }
 
