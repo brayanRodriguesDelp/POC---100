@@ -1188,20 +1188,42 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const setCaptureMode = (mode) => {
     if (!frontInput || !backInput) return;
-    const captureValue = mode === 'camera' ? 'environment' : null;
+    
     [frontInput, backInput].forEach((input) => {
-      if (captureValue) {
-        input.setAttribute('capture', captureValue);
+      if (mode === 'camera') {
+        // Modo câmera: usar câmera traseira do celular
+        input.setAttribute('capture', 'environment');
+        // Adicionar accept específico para garantir que abre a câmera
+        input.setAttribute('accept', 'image/*');
       } else {
+        // Modo galeria: remover capture para permitir escolher da galeria
         input.removeAttribute('capture');
+        input.setAttribute('accept', 'image/*');
       }
+      // Limpar valor anterior
       input.value = '';
     });
+    
+    // Atualizar visual dos botões
+    if (modeCameraBtn && modeGalleryBtn) {
+      if (mode === 'camera') {
+        modeCameraBtn.classList.remove('btn-outline-primary');
+        modeCameraBtn.classList.add('btn-primary');
+        modeGalleryBtn.classList.remove('btn-primary');
+        modeGalleryBtn.classList.add('btn-outline-primary');
+      } else {
+        modeGalleryBtn.classList.remove('btn-outline-primary');
+        modeGalleryBtn.classList.add('btn-primary');
+        modeCameraBtn.classList.remove('btn-primary');
+        modeCameraBtn.classList.add('btn-outline-primary');
+      }
+    }
+    
     if (modeStatus) {
       modeStatus.textContent =
         mode === 'camera'
-          ? 'Modo câmera ativado. Tire as fotos.'
-          : 'Escolha imagens da galeria.';
+          ? '📸 Modo câmera ativado. Clique nos campos acima para tirar as fotos.'
+          : '🖼️ Modo galeria ativado. Escolha as imagens salvas.';
     }
   };
 
@@ -1261,9 +1283,77 @@ document.addEventListener('DOMContentLoaded', () => {
     modeGalleryBtn.addEventListener('click', () => setCaptureMode('gallery'));
   }
 
+  // Preview das imagens quando selecionadas
+  const setupImagePreview = (inputEl, previewId) => {
+    if (!inputEl) return;
+    
+    inputEl.addEventListener('change', async (e) => {
+      const file = e.target.files?.[0];
+      const previewDiv = document.getElementById(previewId);
+      
+      if (!file || !previewDiv) return;
+      
+      try {
+        // Ler arquivo
+        const reader = new FileReader();
+        reader.onload = async (event) => {
+          const imageDataUrl = event.target.result;
+          
+          // Pré-processar para mostrar como ficará para o OCR
+          if (window.PocAI && typeof window.PocAI.preprocessImageForPreview === 'function') {
+            const processed = await window.PocAI.preprocessImageForPreview(imageDataUrl);
+            const img = previewDiv.querySelector('img');
+            if (img) {
+              img.src = processed;
+              previewDiv.style.display = 'block';
+            }
+          } else {
+            // Fallback: mostrar imagem original
+            const img = previewDiv.querySelector('img');
+            if (img) {
+              img.src = imageDataUrl;
+              previewDiv.style.display = 'block';
+            }
+          }
+        };
+        reader.readAsDataURL(file);
+      } catch (err) {
+        console.error('Erro ao mostrar preview:', err);
+      }
+    });
+  };
+  
+  setupImagePreview(frontInput, 'previewFront');
+  setupImagePreview(backInput, 'previewBack');
+
   if (fillModalEl) {
     fillModalEl.addEventListener('show.bs.modal', () => {
-      setCaptureMode('gallery');
+      // Iniciar sempre no modo galeria
+      setTimeout(() => {
+        setCaptureMode('gallery');
+      }, 100);
+      
+      // Limpar previews
+      const previewFront = document.getElementById('previewFront');
+      const previewBack = document.getElementById('previewBack');
+      if (previewFront) previewFront.style.display = 'none';
+      if (previewBack) previewBack.style.display = 'none';
+      
+      // Limpar inputs
+      if (frontInput) frontInput.value = '';
+      if (backInput) backInput.value = '';
+      
+      // Limpar status e erros
+      const errorEl = document.getElementById('pocAiError');
+      const progressEl = document.getElementById('pocAiProgress');
+      if (errorEl) {
+        errorEl.classList.add('d-none');
+        errorEl.textContent = '';
+      }
+      if (progressEl) {
+        progressEl.classList.add('d-none');
+        progressEl.textContent = '';
+      }
     });
   }
 
