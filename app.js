@@ -113,10 +113,6 @@ const updateUI = () => {
     if (document.querySelector('.tab.is-active')?.dataset.tab === 'seguras') {
       setActiveTab('basicos');
     }
-    // Abre automaticamente a aba de práticas inseguras quando selecionado
-    if (document.querySelector('.tab.is-active')?.dataset.tab === 'basicos') {
-      setActiveTab('inseguras');
-    }
   }
 
   if (selectedType === 'segura') {
@@ -124,10 +120,6 @@ const updateUI = () => {
     disableTab('seguras', false);
     if (document.querySelector('.tab.is-active')?.dataset.tab === 'inseguras') {
       setActiveTab('basicos');
-    }
-    // Abre automaticamente a aba de práticas seguras quando selecionado
-    if (document.querySelector('.tab.is-active')?.dataset.tab === 'basicos') {
-      setActiveTab('seguras');
     }
   }
 
